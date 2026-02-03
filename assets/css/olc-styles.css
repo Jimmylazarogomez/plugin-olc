@@ -1,0 +1,1397 @@
+/* ==== OLC: estilos compatibles con las clases actuales del plugin ==== */
+
+/* Contenedor / grid */
+.olc-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 18px 0; /* usar todo el ancho del contenedor WP */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tarjeta base */
+.olc-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  border: 1px solid #E5E7EB; /* fallback sólido */
+  border: 1px solid rgba(15,23,42,0.05); /* color con transparencia */
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+.olc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(16,24,40,0.08);
+}
+
+/* Badge de estado */
+.olc-status-badge {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background-color: #1147BB;
+  box-shadow: 0 6px 14px rgba(2,6,23,0.12);
+  text-transform: none;
+  line-height: 1;
+}
+
+.olc-status-badge::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #999;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+
+/* Colores del badge y del círculo */
+.olc-status-activa { background-color: #1147BB; }
+.olc-status-activa::before { background-color: #00C897; }
+
+.olc-status-vencida { background-color: #1147BB; }
+.olc-status-vencida::before { background-color: #FF4D4F; }
+
+.olc-status-otro { background-color: #1147BB; }
+.olc-status-otro::before { background-color: #FFD43B; }
+
+/* Cuerpo de la tarjeta */
+.olc-card-body {
+  margin-top: 0px;
+}
+
+/* Título */
+.olc-card h3 {
+  margin: 0 0 10px 0; /* espacio de 1 unidad entre título y descripción */
+  font-size: 1.5rem;
+  color: #0f172a;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Descripción breve */
+.olc-descripcion {
+  color: #475569;
+  font-size: 0.95rem;
+  margin-bottom: 1px;  /*2 espacios hasta las descripciones */
+  line-height: 1.5;
+  min-height: 56px;
+}
+
+/* Info extra (ciudad, sueldo, tiempo) */
+.olc-info,
+.olc-sueldo,
+.olc-tiempo {
+  margin-bottom: 15px; /* 1 espacio entre descripciones */
+  font-size: 0.95rem !important;
+  font-weight: 400;
+  color: #0F1729 !important;
+  line-height: 1.45;
+  filter: grayscale(100%);
+  opacity: 0.85;
+}
+
+.olc-info strong,
+.olc-sueldo strong {
+  font-weight: 400 !important;
+  color: #0F1729 !important;
+}
+
+/* Footer - botones */
+.olc-card-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px; /* 2 espacios arriba del footer */
+  align-items: center;
+  justify-content: space-between;
+  /*border-top: 1px solid rgba(15,23,42,0.03);*/
+  padding-top: 16px;
+}
+
+/* Botones grandes */
+.olc-card-footer .olc-btn-detalle,
+.olc-card-footer .olc-btn-postular {
+  display: inline-block;
+  text-decoration: none;
+  padding: 0.6rem 2rem;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+/* Ver detalles */
+.olc-btn-detalle {
+  background: transparent;
+  border: 1px solid #e1e7ef;
+  color: #3D3D3D;
+}
+
+.olc-btn-detalle:hover {
+  background: #E9590C;
+  border-color: #E9590C;
+  color: #FFFFFF;
+}
+
+/* Postular */
+.olc-btn-postular {
+  background: #E9590C;
+  border: 1px solid #E9590C;
+  color: #ffffff;
+}
+
+.olc-btn-postular:hover {
+  background: #F25805;
+  border-color: #F25805;
+  color: #f4f4f4;
+}
+
+/* Asegurar que no haya subrayado */
+.olc-card a {
+  text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .olc-grid-container {
+    grid-template-columns: 1fr;
+    padding: 12px 0;
+  }
+  .olc-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .olc-card h3 {
+    margin-top: 36px;
+  }
+}
+
+/* ==== OLC: estilos compatibles con las clases actuales del plugin ==== */
+
+/* Contenedor / grid */
+.olc-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 18px 0; /* usar todo el ancho del contenedor WP */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tarjeta base */
+.olc-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  border: 1px solid #E5E7EB; /* fallback sólido */
+  border: 1px solid rgba(15,23,42,0.05); /* color con transparencia */
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+.olc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(16,24,40,0.08);
+}
+
+/* Badge de estado */
+.olc-status-badge {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background-color: #1147BB;
+  box-shadow: 0 6px 14px rgba(2,6,23,0.12);
+  text-transform: none;
+  line-height: 1;
+}
+
+.olc-status-badge::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #999;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+
+/* Colores del badge y del círculo */
+.olc-status-activa { background-color: #1147BB; }
+.olc-status-activa::before { background-color: #00C897; }
+
+.olc-status-vencida { background-color: #1147BB; }
+.olc-status-vencida::before { background-color: #FF4D4F; }
+
+.olc-status-otro { background-color: #1147BB; }
+.olc-status-otro::before { background-color: #FFD43B; }
+
+/* Cuerpo de la tarjeta */
+.olc-card-body {
+  margin-top: 0px;
+}
+
+/* Título */
+.olc-card h3 {
+  margin: 0 0 10px 0; /* espacio de 1 unidad entre título y descripción */
+  font-size: 1.5rem;
+  color: #0f172a;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Descripción breve */
+.olc-descripcion {
+  color: #475569;
+  font-size: 0.95rem;
+  margin-bottom: 1px;  /*2 espacios hasta las descripciones */
+  line-height: 1.5;
+  min-height: 56px;
+}
+
+/* Info extra (ciudad, sueldo, tiempo) */
+.olc-info,
+.olc-sueldo,
+.olc-tiempo {
+  margin-bottom: 15px; /* 1 espacio entre descripciones */
+  font-size: 0.95rem !important;
+  font-weight: 400;
+  color: #0F1729 !important;
+  line-height: 1.45;
+  filter: grayscale(100%);
+  opacity: 0.85;
+}
+
+.olc-info strong,
+.olc-sueldo strong {
+  font-weight: 400 !important;
+  color: #0F1729 !important;
+}
+
+/* Footer - botones */
+.olc-card-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px; /* 2 espacios arriba del footer */
+  align-items: center;
+  justify-content: space-between;
+  /*border-top: 1px solid rgba(15,23,42,0.03);*/
+  padding-top: 16px;
+}
+
+/* Botones grandes */
+.olc-card-footer .olc-btn-detalle,
+.olc-card-footer .olc-btn-postular {
+  display: inline-block;
+  text-decoration: none;
+  padding: 0.6rem 2rem;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+/* Ver detalles */
+.olc-btn-detalle {
+  background: transparent;
+  border: 1px solid #e1e7ef;
+  color: #3D3D3D;
+}
+
+.olc-btn-detalle:hover {
+  background: #E9590C;
+  border-color: #E9590C;
+  color: #FFFFFF;
+}
+
+/* Postular */
+.olc-btn-postular {
+  background: #E9590C;
+  border: 1px solid #E9590C;
+  color: #ffffff;
+}
+
+.olc-btn-postular:hover {
+  background: #F25805;
+  border-color: #F25805;
+  color: #f4f4f4;
+}
+
+/* Asegurar que no haya subrayado */
+.olc-card a {
+  text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .olc-grid-container {
+    grid-template-columns: 1fr;
+    padding: 12px 0;
+  }
+  .olc-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .olc-card h3 {
+    margin-top: 36px;
+  }
+}
+
+
+/* Detalle oferta - layout 2 columnas */
+.olc-oferta-container { max-width: 1200px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
+.olc-oferta-header { display:block; margin-bottom: 18px; }
+.olc-oferta-title { font-size: 28px; margin: 0 0 8px 0; color: #0f172a; font-weight: 700; }
+.olc-oferta-meta { display:flex; gap:16px; color:#475569; font-size:14px; margin-bottom:6px; }
+.olc-oferta-meta .olc-meta-item { display:inline-block; }
+
+/* Estatus pequeño al lado derecho del título (si quieres aparte) */
+.olc-oferta-status { float:right; background:#1147bb; color:#fff; padding:6px 10px; border-radius:999px; font-weight:700; }
+
+/* Grid 2 columnas */
+.olc-oferta-detalle {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 28px;
+  align-items: start;
+  margin-top: 18px;
+}
+
+/* cajas dentro de la columna principal */
+.olc-box { background:#fff; border:1px solid rgba(15,23,42,0.04); border-radius:10px; padding:18px; margin-bottom:18px; box-shadow: 0 2px 10px rgba(2,6,23,0.03); }
+.olc-box h3 { margin:0 0 12px 0; font-size:18px; color:#0f172a; }
+.olc-box-content { color:#475569; line-height:1.6; }
+
+/* Sidebar */
+.olc-oferta-sidebar { position: relative; }
+.olc-sidebar-section { background:#fff; border:1px solid rgba(15,23,42,0.04); padding:16px; border-radius:10px; margin-bottom:16px; }
+.olc-sidebar-section h4 { margin:0 0 8px 0; font-size:15px; }
+
+/* CV status */
+.olc-cvv-ok { color: #16a34a; font-weight:700; }
+.olc-cvv-missing { color: #b45309; font-weight:700; }
+
+/* botones */
+.olc-btn-primary { display:inline-block; background:#E9590C; color:#fff; padding:10px 18px; border-radius:10px; text-decoration:none; font-weight:700; }
+.olc-btn-outline { display:inline-block; background:transparent; color:#333; padding:10px 18px; border-radius:10px; text-decoration:none; border:1px solid #e6eaf0; }
+
+/* responsive: pasar a una columna en pantallas pequeñas */
+@media (max-width: 960px) {
+  .olc-oferta-detalle { grid-template-columns: 1fr; }
+  .olc-oferta-status { float:none; display:inline-block; margin-top:8px; }
+  .olc-oferta-container { padding:12px; }
+}
+
+.olc-oferta-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px 0;
+  box-sizing: border-box;
+}
+
+.olc-oferta-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  padding-bottom: 18px;
+}
+
+.olc-oferta-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.olc-oferta-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.olc-meta-item {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.olc-oferta-status {
+  display: inline-block;
+  font-size: 0.85rem;
+  background: #1147BB;
+  padding: 6px 14px;
+  border-radius: 20px;
+  color: #fff;
+  margin-top: 8px;
+}
+
+.olc-oferta-detalle {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+.olc-box {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 20px 24px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.04);
+}
+
+.olc-box h3 {
+  font-size: 1.2rem;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.olc-box-content {
+  color: #475569;
+  line-height: 1.55;
+}
+
+.olc-sidebar-section {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 18px 20px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.olc-sidebar-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.olc-btn-primary,
+.olc-btn-outline {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+}
+
+/* Responsive */
+@media screen and (max-width: 900px) {
+  .olc-oferta-detalle {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* === Modal postulante === */
+.olc-modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: flex-start; /* 🔥 Antes: center — causa problemas */
+  overflow-y: auto;        /* 🔥 Permite scroll del modal entero */
+  padding: 40px 0;
+}
+
+/* Contenedor del contenido */
+.olc-modal-content {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  max-height: 90vh;       /* 🔥 Importante: evita desbordes */
+  overflow-y: auto;       /* 🔥 Scroll interno */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* Botón cerrar */
+.olc-modal-close {
+  position: absolute;
+  top: 10px; right: 15px;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+/* Estilo de inputs */
+#formPostulante label {
+  display: block;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+#formPostulante input,
+#formPostulante select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* Botones */
+.olc-btn-primary, .olc-btn-secondary {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.olc-btn-primary {
+    background: #facb07;      /* Color de fondo del botón */
+    color: #333333;           /* Gris oscuro para el texto */
+    text-decoration: none !important;
+    font-size: 18px; 
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    padding-top: 18px;
+    font-weight: 700;         /* Texto en negrita */
+    transition: background 0.2s; /* Transición suave para el fondo */
+
+}
+.olc-btn-primary:hover 
+{ 
+    background: #005b87; 
+    color: white; 
+    
+}
+
+.olc-btn-secondary {
+  background: #ccc;
+  color: #333;
+}
+.olc-btn-secondary:hover { background: #b5b5b5; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .olc-modal-content {
+    width: 95%;
+    max-height: 95vh;
+    padding: 20px;
+  }
+}
+
+
+/* === Botón "Ya postulaste" === */
+
+.olc-btn-ya-postulaste {
+    background: #E9590C !important;
+    border: 1px solid #E9590C !important;
+    border-color: #E9590C !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    padding: 0.6rem 2rem !important;
+    border-radius: 6px !important;
+    text-align: center;
+    width: 100%;
+    transition: all .18s ease !important;
+}
+
+.olc-btn-ya-postulaste:hover {
+    background: #F25805 !important;
+    border-color: #F25805 !important;
+    opacity: 0.8;
+}
+
+
+/* Pestaña de etapas:*/
+
+.etapas-tabs {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.etapa-tab {
+    padding: 10px 22px;
+    background: #f4f6f9;
+    border-radius: 10px;
+    color: #444;
+    text-decoration: none;
+    font-weight: 500;
+    border: 1px solid #dfe3e8;
+    transition: 0.2s;
+}
+
+.etapa-tab:hover {
+    background: #e9edf2;
+}
+
+.etapa-tab.active {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+
+
+/* ========================================
+   FILTROS DE OFERTAS
+======================================== */
+
+.olc-filtros-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    /* Para centrar el contenedor en la pantalla */
+    display: flex;          /* Usamos flexbox para centrar el contenido */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center;     /* Centra el contenido verticalmente */
+    width: 100%;             /* Asegura que el contenedor ocupe todo el ancho disponible */
+    box-sizing: border-box;  /* Asegura que el padding no afecte el tamaño total */
+    
+}
+
+.olc-filtros-form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.olc-filtro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 200px;
+}
+
+.olc-filtro-item label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.olc-filtro-item select {
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.olc-filtro-item select:hover,
+.olc-filtro-item select:focus {
+    border-color: #0d6efd;
+    outline: none;
+}
+
+.olc-btn-filtrar {
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.olc-btn-filtrar:hover {
+    background: #0b5ed7;
+}
+
+.olc-btn-limpiar {
+    background: #6c757d;
+    color: white !important;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.olc-btn-limpiar:hover {
+    background: #5a6268;
+}
+
+.olc-resultados-info {
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background: #e7f3ff;
+    border-left: 4px solid #0d6efd;
+    border-radius: 4px;
+}
+
+.olc-resultados-info p {
+    margin: 0;
+    color: #0c5aa6;
+    font-size: 14px;
+}
+
+.olc-sin-resultados {
+    text-align: center;
+    padding: 40px 20px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    color: #856404;
+    font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .olc-filtros-form {
+        flex-direction: column;
+    }
+    
+    .olc-filtro-item {
+        width: 100%;
+    }
+}
+
+
+
+        /* ========================================
+           MODAL DE ÉXITO AL POSTULAR
+        ======================================== */
+        #olc-modal-exito-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .olc-modal-exito-contenido {
+            background: white;
+            padding: 50px 60px;
+            border-radius: 20px;
+            max-width: 550px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .olc-modal-exito-icono {
+            font-size: 90px;
+            margin-bottom: 25px;
+            animation: scaleIn 0.5s ease 0.2s both;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .olc-modal-exito-contenido h2 {
+            color: #28a745;
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .olc-modal-exito-contenido p {
+            font-size: 17px;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .olc-modal-exito-nota {
+            font-size: 15px;
+            color: #777;
+            font-style: italic;
+            margin-top: 25px;
+        }
+
+        .olc-btn-modal-cerrar {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 16px 50px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .olc-btn-modal-cerrar:hover {
+            background: #0b5ed7;
+            transform: scale(1.05);
+        }
+
+        .olc-btn-modal-cerrar:active {
+            transform: scale(0.98);
+        }
+
+
+        /* ========================================
+           PANEL DEL POSTULANTE
+        ======================================== */
+        
+        .olc-panel-postulante {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        /* Header del panel */
+        .olc-panel-header {
+            background: #E9590C;
+            border-radius: 16px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .olc-header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .olc-avatar {
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .olc-avatar img {
+            display: block;
+        }
+        
+        .olc-header-text h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .olc-subtitle {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 15px;
+        }
+        
+        .olc-btn-logout-header {
+            background: rgba(255,255,255,0.2);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .olc-btn-logout-header:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Grid de 2 columnas */
+        .olc-panel-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        /* Cards */
+        .olc-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: box-shadow 0.2s;
+        }
+        
+        .olc-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        
+        .olc-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .olc-card-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .olc-btn-icon {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+        
+        .olc-btn-icon:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Lista de información */
+        .olc-info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .olc-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .olc-info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .olc-info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .olc-info-value {
+            color: #333;
+            font-size: 14px;
+            text-align: right;
+        }
+        
+        /* Card de CV */
+        .olc-card-cv {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea30;
+        }
+        
+        .olc-cv-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .olc-cv-icon {
+            font-size: 40px;
+        }
+        
+        .olc-cv-estado {
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        
+        .olc-cv-fecha {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .olc-cv-faltante {
+            border: 2px dashed #ff9800;
+            background: #fff3e0;
+        }
+        
+        .olc-btn-ver-cv {
+            display: block;
+            background: #e9590c;
+            color: white !important;
+            text-align: center;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none !important;
+            font-weight: 600;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        
+        .olc-btn-ver-cv:hover {
+            background: #d1500a;
+        }
+        
+        .olc-btn-actualizar-cv {
+            width: 100%;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .olc-btn-actualizar-cv:hover {
+            background: #45a049;
+        }
+        
+        /* Card de acciones */
+        .olc-card-acciones h3 {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+        }
+        
+        .olc-btn-accion {
+            display: block;
+            background: #f8f9fa;
+            color: #333 !important;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 8px;
+            border-color: none !important;
+            font-weight: 600;
+            text-decoration: none !important;
+            margin-bottom: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .olc-btn-accion:hover {
+            background: #51b9ff;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Alertas */
+        .olc-alerta-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .olc-alerta-info p {
+            margin: 0 0 15px 0;
+        }
+        
+        /* Mensajes de respuesta */
+        .olc-loading {
+            color: #ff9800;
+            font-weight: 600;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .olc-success {
+            color: #4CAF50;
+            font-weight: 600;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .olc-error {
+            color: #f44336;
+            font-weight: 600;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        /* Modal más grande para editar */
+        .olc-modal-grande {
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Form rows (2 columnas) */
+        .olc-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .olc-form-col {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .olc-form-col label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .olc-form-col input,
+        .olc-form-col select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .olc-panel-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .olc-panel-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .olc-header-content {
+                flex-direction: column;
+            }
+            
+            .olc-form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .olc-panel-postulante {
+                padding: 0 10px;
+            }
+            
+            .olc-panel-header {
+                padding: 20px;
+            }
+            
+            .olc-card {
+                padding: 15px;
+            }
+            
+            .olc-info-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .olc-info-value {
+                text-align: left;
+            }
+        }
+        
+        /* Panel login required */
+        .olc-panel-login-required {
+            max-width: 500px;
+            margin: 100px auto;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .olc-panel-login-required h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        
+        .olc-panel-login-required p {
+            margin: 0 0 25px 0;
+            color: #666;
+        }
+        
+        
+        /* Botón Editar Datos en sidebar */
+        .olc-btn-editar-datos {
+            
+            background: white;
+            border: 2px solid #E9590C;
+            display: block;
+            color: #0f172a !important;
+            text-align: center;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 700 !important;
+            font-size: 15px !important;
+            text-decoration: none !important;
+            width: 48%;
+            transition: all 0.2s;
+        }
+        
+        .olc-btn-editar-datos:hover {
+            background: #E9590C;
+            color: white !important;
+            border-color: none;
+            transform: translateY(-2px);
+        }
+        
+        
+        /* ========================================
+           BOTÓN BOLSA DE CV
+        ======================================== */
+        
+        .olc-btn-bolsa-cv {
+            background: #E9590C !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.6rem 2rem !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .olc-btn-bolsa-cv:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .olc-btn-bolsa-cv span {
+            opacity: 0.9;
+        }
+        
+        /* Ajuste para que quede al lado derecho de los filtros */
+        .olc-filtros-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        @media (max-width: 768px) {
+            .olc-btn-bolsa-cv {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+        
+        
+        /* ========================================
+           ESTILOS PARA BOTÓN DE POSTULAR DESHABILITADO
+           Agregar al archivo: assets/css/olc-styles.css
+           ======================================== */
+        
+        /* Botón deshabilitado para ofertas cerradas/vencidas */
+        .olc-btn-postular-disabled {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #cccccc !important;
+            color: #666666 !important;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+            text-decoration: none;
+            transition: none;
+        }
+        
+        .olc-btn-postular-disabled:hover {
+            background: #cccccc !important;
+            color: #666666 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Ajustar el card cuando tiene oferta vencida */
+        .olc-card:has(.olc-btn-postular-disabled) {
+            opacity: 0.85;
+        }
+        
+        /* Badge de estado "Oferta cerrada" */
+        .olc-status-badge.olc-status-finalizada {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .olc-status-badge.olc-status-evaluacion {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .olc-status-badge.olc-status-activa {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        /* Tiempo restante cuando está cerrada */
+        .olc-tiempo:has-text("cerrada") {
+            color: #dc3545;
+            font-weight: 600;
+        }
