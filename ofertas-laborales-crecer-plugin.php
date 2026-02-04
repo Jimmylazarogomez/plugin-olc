@@ -25,7 +25,7 @@ if (is_admin()) {
     OLC_Admin::init();
 }
 
-// 🔹 Encolar estilos públicos
+// 🔹 Encolar estilos públicosñ
 add_action('wp_enqueue_scripts', function() {
     wp_enqueue_style(
         'olc-styles',

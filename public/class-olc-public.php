@@ -79,489 +79,492 @@ class OLC_Public {
         ));
     }
 
-        /* -----------------------------
-           Shortcode: listado de ofertas CON FILTROS (CORREGIDO)
-           ----------------------------- */
+    /* -----------------------------
+    Shortcode: listado de ofertas CON FILTROS (CORREGIDO)
+    ----------------------------- */
+
+    public static function shortcode_list($atts) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'olc_ofertas';
         
-        public static function shortcode_list($atts) {
-            global $wpdb;
-            $table = $wpdb->prefix . 'olc_ofertas';
-            
-            // ========================================
-            // OBTENER VALORES DE FILTROS (GET params)
-            // ========================================
-            $filtro_tipo = isset($_GET['tipo_oferta']) ? sanitize_text_field($_GET['tipo_oferta']) : '';
-            $filtro_sede = isset($_GET['sede']) ? sanitize_text_field($_GET['sede']) : '';
-            $filtro_estado = isset($_GET['estado_oferta']) ? sanitize_text_field($_GET['estado_oferta']) : '';
-            
-            // ========================================
-            // ✅ CONSTRUIR CONSULTA CON FILTROS (CORREGIDO)
-            // ========================================
-            
-            // ✅ Calcular fecha límite: 1 mes después de expiración
-            $fecha_limite = date('Y-m-d H:i:s', strtotime('-1 month'));
-            
-            // Mostrar ofertas publicadas/activas que NO hayan expirado hace más de 1 mes
-            $where = "WHERE (estado = 'publicada' OR estado = 'activa' OR estado IS NULL OR estado = '')";
-            $where .= " AND (fecha_fin >= %s OR fecha_fin IS NULL)";
-            $params = array($fecha_limite);
-            
-            if (!empty($filtro_tipo)) {
-                $where .= " AND titulo = %s";
-                $params[] = $filtro_tipo;
-            }
-            
-            if (!empty($filtro_sede)) {
-                $where .= " AND ciudad = %s";
-                $params[] = $filtro_sede;
-            }
-            
-            // ✅ Ejecutar query (siempre hay al menos 1 parámetro: fecha_limite)
-            $query = "SELECT * FROM {$table} {$where} ORDER BY created_at DESC";
-            $rows = $wpdb->get_results($wpdb->prepare($query, $params));
-            
-            // ✅ OBTENER OPCIONES PARA LOS FILTROS (CORREGIDO)
-            // ========================================
-            $fecha_limite_filtros = date('Y-m-d H:i:s', strtotime('-1 month'));
-            
-            // Tipos de oferta (desde titulo) - solo ofertas publicadas/activas válidas
-            $tipos_disponibles = $wpdb->get_col($wpdb->prepare("
-                SELECT DISTINCT titulo 
-                FROM {$table} 
-                WHERE (estado = 'publicada' OR estado = 'activa' OR estado IS NULL OR estado = '') 
-                AND (fecha_fin >= %s OR fecha_fin IS NULL)
-                AND titulo IS NOT NULL 
-                AND titulo != '' 
-                ORDER BY titulo ASC
-            ", $fecha_limite_filtros));
-            
-            // Sedes disponibles (desde ciudad) - solo ofertas publicadas/activas válidas
-            $sedes_disponibles = $wpdb->get_col($wpdb->prepare("
-                SELECT DISTINCT ciudad 
-                FROM {$table} 
-                WHERE (estado = 'publicada' OR estado = 'activa' OR estado IS NULL OR estado = '') 
-                AND (fecha_fin >= %s OR fecha_fin IS NULL)
-                AND ciudad IS NOT NULL 
-                AND ciudad != '' 
-                ORDER BY ciudad ASC
-            ", $fecha_limite_filtros));
-            
-            ob_start();
-            
-            
-            // ========================================
-            // HTML: FORMULARIO DE FILTROS
-            // ========================================
-            ?>
-            <div class="olc-filtros-container">
-                <form method="get" class="olc-filtros-form" id="olcFiltrosForm">
-                    <?php 
-                    // Preservar parámetros existentes (como page_id si usas permalinks)
-                    foreach ($_GET as $key => $value) {
-                        if ($key !== 'tipo_oferta' && $key !== 'sede' && $key !== 'estado_oferta') {
-                            echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
-                        }
-                    }
-                    ?>
-                    
-                    <div class="olc-filtro-item">
-                        <label for="tipo_oferta">Tipo de Oferta:</label>
-                        <select name="tipo_oferta" id="tipo_oferta">
-                            <option value="">Todos los tipos</option>
-                            <?php foreach ($tipos_disponibles as $tipo): ?>
-                                <option value="<?php echo esc_attr($tipo); ?>" <?php selected($filtro_tipo, $tipo); ?>>
-                                    <?php echo esc_html($tipo); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="olc-filtro-item">
-                        <label for="sede">Sede/Agencia:</label>
-                        <select name="sede" id="sede">
-                            <option value="">Todas las sedes</option>
-                            <?php foreach ($sedes_disponibles as $sede): ?>
-                                <option value="<?php echo esc_attr($sede); ?>" <?php selected($filtro_sede, $sede); ?>>
-                                    <?php echo esc_html($sede); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <!-- ✅ NUEVO: Filtro por Estado -->
-                    <div class="olc-filtro-item">
-                        <label for="estado_oferta">Estado:</label>
-                        <select name="estado_oferta" id="estado_oferta">
-                            <option value="">Todos los estados</option>
-                            <option value="activa" <?php selected($filtro_estado, 'activa'); ?>>Activa</option>
-                            <option value="evaluacion" <?php selected($filtro_estado, 'evaluacion'); ?>>En Evaluación</option>
-                            <option value="finalizada" <?php selected($filtro_estado, 'finalizada'); ?>>Finalizada</option>
-                        </select>
-                    </div>
-                    
-                    <div class="olc-filtro-item">
-                        <button type="submit" class="olc-btn-filtrar">🔍 Filtrar</button>
-                        <?php if (!empty($filtro_tipo) || !empty($filtro_sede) || !empty($filtro_estado)): ?>
-                            <a href="<?php echo esc_url(strtok($_SERVER['REQUEST_URI'], '?')); ?>" class="olc-btn-limpiar">
-                                ✖ Limpiar filtros
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- ✅ NUEVO: Botón Bolsa de Postulantes -->
-                    <div class="olc-filtro-item" style="margin-left: auto;">
-                        <button type="button" id="btnAbrirBolsaCV" class="olc-btn-bolsa-cv">
-                            📤 Déjanos tu CV
-                        </button>
-                        <span style="display:block; font-size:11px; font-weight:normal; margin-top:3px;text-align: center;">
-                            (Si no encontraste una oferta que se adecúe a ti)
-                        </span>
-                    </div>
-                </form>
-            </div>
-            <?php
-            
-            // ========================================
-            // RESULTADOS
-            // ========================================
-            if (empty($rows)) {
-                echo '<p class="olc-sin-resultados">No hay ofertas laborales disponibles con los filtros seleccionados.</p>';
-                return ob_get_clean();
-            }
-            
-            echo '<div class="olc-resultados-info">';
-            echo '<p>Mostrando <strong>' . count($rows) . '</strong> oferta(s)</p>';
-            echo '</div>';
-            
-            echo '<div class="olc-grid-container">';
-            foreach ($rows as $r) {
-                $detail_page = get_page_by_title('Detalle Oferta');
-                $url_detalle = $detail_page ? add_query_arg(array('oferta_id' => $r->id), get_permalink($detail_page)) : '#';
+        // ========================================
+        // OBTENER VALORES DE FILTROS (GET params)
+        // ========================================
+        $filtro_tipo = isset($_GET['tipo_oferta']) ? sanitize_text_field($_GET['tipo_oferta']) : '';
+        $filtro_sede = isset($_GET['sede']) ? sanitize_text_field($_GET['sede']) : '';
+        $filtro_estado = isset($_GET['estado_oferta']) ? sanitize_text_field($_GET['estado_oferta']) : '';
         
-                // ========================================
-                // DETERMINAR ESTADO DINÁMICO DE LA OFERTA
-                // ========================================
-                $hoy = new DateTime();
-                $estado_texto = 'Publicada';
-                $estado_class = 'olc-status-otro';
-                $oferta_vencida = false;
-                
-                // 1. Verificar si ya tiene un ganador (Finalizada)
-                if (!empty($r->ganador_id)) {
-                    $estado_texto = 'Finalizada';
-                    $estado_class = 'olc-status-finalizada';
-                    $oferta_vencida = true;
-                } else {
-                    // 2. Verificar fecha_fin
-                    if (!empty($r->fecha_fin)) {
-                        $fecha_fin = new DateTime($r->fecha_fin);
-                        
-                        if ($fecha_fin < $hoy) {
-                            // Ya pasó la fecha → En evaluación
-                            $estado_texto = 'En evaluación';
-                            $estado_class = 'olc-status-evaluacion';
-                            $oferta_vencida = true;
-                        } else {
-                            // Dentro de fecha → Activa
-                            $estado_texto = 'Activa';
-                            $estado_class = 'olc-status-activa';
-                            $oferta_vencida = false;
-                        }
-                    } else {
-                        // Sin fecha definida, considerar activa si está publicada
-                        if ($r->estado === 'publicada') {
-                            $estado_texto = 'Activa';
-                            $estado_class = 'olc-status-activa';
-                            $oferta_vencida = false;
-                        } else {
-                            $estado_texto = ucfirst($r->estado);
-                            $estado_class = 'olc-status-otro';
-                        }
-                    }
-                }
-                
-                // ✅ APLICAR FILTRO POR ESTADO (si está activo)
-                if (!empty($filtro_estado)) {
-                    $mostrar = false;
-                    
-                    if ($filtro_estado === 'activa' && $estado_texto === 'Activa') {
-                        $mostrar = true;
-                    } elseif ($filtro_estado === 'evaluacion' && $estado_texto === 'En evaluación') {
-                        $mostrar = true;
-                    } elseif ($filtro_estado === 'finalizada' && $estado_texto === 'Finalizada') {
-                        $mostrar = true;
-                    }
-                    
-                    // Si no coincide con el filtro, saltar esta oferta
-                    if (!$mostrar) {
-                        continue;
-                    }
-                }
-                
-                // Calcular días restantes
-                $dias_restantes = '';
-                if (!empty($r->fecha_fin) && !$oferta_vencida) {
-                    $vence = new DateTime($r->fecha_fin);
-                    $diff = $hoy->diff($vence)->days;
-                    $dias_restantes = "⏳ {$diff} días restantes";
-                } elseif ($oferta_vencida) {
-                    $dias_restantes = "❌ Oferta cerrada";
-                }
-                
-                $estado_label = '<span class="olc-status-badge ' . $estado_class . '">' . esc_html($estado_texto) . '</span>';
+        // ========================================
+        // ✅ CONSTRUIR CONSULTA CON FILTROS (CORREGIDO)
+        // ========================================
         
-                echo '<div class="olc-card">';
-                echo $estado_label;
-                echo '<div class="olc-card-body">';
-                echo '<h3>' . esc_html($r->titulo) . '</h3>';
-                echo '<p class="olc-descripcion">' . wp_trim_words(strip_tags($r->descripcion), 25, '...') . '</p>';
-                echo '<p class="olc-info"><strong>📍 ' . esc_html($r->ciudad) . '</strong></p>';
-                echo '<p class="olc-sueldo">💰 ' . esc_html($r->sueldo ?: 'A convenir') . '</p>';
-                if ($dias_restantes) echo '<p class="olc-tiempo">' . esc_html($dias_restantes) . '</p>';
-                echo '</div>';
-                echo '<div class="olc-card-footer">';
-                echo '<a href="' . esc_url($url_detalle) . '" class="olc-btn-detalle">Ver detalles</a>';
-                
-                // ✅ Botón "Postular" solo si NO está vencida
-                if (!$oferta_vencida) {
-                    echo '<a href="' . esc_url($url_detalle) . '" class="olc-btn-postular">Postular</a>';
-                } else {
-                    echo '<button class="olc-btn-postular-disabled" disabled>Cerrada</button>';
+        // ✅ Calcular fecha límite: 1 mes después de expiración
+        $fecha_limite = date('Y-m-d H:i:s', strtotime('-1 month'));
+        
+        // Mostrar ofertas publicadas/activas que NO hayan expirado hace más de 1 mes
+        $where = "WHERE (estado = 'publicada' OR estado = 'activa' OR estado IS NULL OR estado = '')";
+        $where .= " AND (fecha_fin >= %s OR fecha_fin IS NULL)";
+        $params = array($fecha_limite);
+        
+        if (!empty($filtro_tipo)) {
+            $where .= " AND titulo = %s";
+            $params[] = $filtro_tipo;
+        }
+        
+        if (!empty($filtro_sede)) {
+            $where .= " AND ciudad = %s";
+            $params[] = $filtro_sede;
+        }
+        
+        // ✅ Ejecutar query (siempre hay al menos 1 parámetro: fecha_limite)
+        $query = "SELECT * FROM {$table} {$where} ORDER BY created_at DESC";
+        $rows = $wpdb->get_results($wpdb->prepare($query, $params));
+        
+        // ✅ OBTENER OPCIONES PARA LOS FILTROS (CORREGIDO)
+        // ========================================
+        $fecha_limite_filtros = date('Y-m-d H:i:s', strtotime('-1 month'));
+        
+        // Tipos de oferta (desde titulo) - solo ofertas publicadas/activas válidas
+        $tipos_disponibles = $wpdb->get_col($wpdb->prepare("
+            SELECT DISTINCT titulo 
+            FROM {$table} 
+            WHERE (estado = 'publicada' OR estado = 'activa' OR estado IS NULL OR estado = '') 
+            AND (fecha_fin >= %s OR fecha_fin IS NULL)
+            AND titulo IS NOT NULL 
+            AND titulo != '' 
+            ORDER BY titulo ASC
+        ", $fecha_limite_filtros));
+        
+        // Sedes disponibles (desde ciudad) - solo ofertas publicadas/activas válidas
+        $sedes_disponibles = $wpdb->get_col($wpdb->prepare("
+            SELECT DISTINCT ciudad 
+            FROM {$table} 
+            WHERE (estado = 'publicada' OR estado = 'activa' OR estado IS NULL OR estado = '') 
+            AND (fecha_fin >= %s OR fecha_fin IS NULL)
+            AND ciudad IS NOT NULL 
+            AND ciudad != '' 
+            ORDER BY ciudad ASC
+        ", $fecha_limite_filtros));
+        
+        ob_start();
+        
+        
+        // ========================================
+        // HTML: FORMULARIO DE FILTROS
+        // ========================================
+        ?>
+        <div class="olc-filtros-container">
+            <form method="get" class="olc-filtros-form" id="olcFiltrosForm">
+                <?php 
+                // Preservar parámetros existentes (como page_id si usas permalinks)
+                foreach ($_GET as $key => $value) {
+                    if ($key !== 'tipo_oferta' && $key !== 'sede' && $key !== 'estado_oferta') {
+                        echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
+                    }
                 }
+                ?>
                 
-                echo '</div>';
-                echo '</div>';
-            }
-            echo '</div>';
-            ?>
-            
-            <!-- ========================================
-                 MODAL: ENVIAR CV A BOLSA DE POSTULANTES
-                 ======================================== -->
-            <?php 
-            global $wpdb;
-            $user_id = get_current_user_id();
-            $datos_postulante = null;
-            
-            if ($user_id) {
-                $datos_postulante = $wpdb->get_row($wpdb->prepare(
-                    "SELECT * FROM {$wpdb->prefix}olc_postulantes WHERE user_id=%d LIMIT 1", 
-                    $user_id
-                ));
-            }
-            ?>
-            
-            <div id="modalBolsaCV" class="olc-modal" style="display:none;">
-                <div class="olc-modal-content olc-modal-grande">
-                    <span class="olc-modal-close" id="cerrarModalBolsa">&times;</span>
-                    
-                    <?php if (!is_user_logged_in()): ?>
-                        <!-- Si no está logueado -->
-                        <h2>🔒 Inicia sesión para continuar</h2>
-                        <p>Para dejar tu CV en nuestra bolsa de postulantes, necesitas tener una cuenta.</p>
-                        <div style="margin-top:20px; text-align:center;">
-                            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="olc-btn-primary">
-                                Iniciar Sesión
-                            </a>
-                            <p style="margin-top:15px;">
-                                ¿No tienes cuenta? 
-                                <a href="<?php echo wp_registration_url(); ?>" style="color:#667eea; font-weight:600;">
-                                    Regístrate aquí
-                                </a>
-                            </p>
-                        </div>
-                    <?php else: ?>
-                        <!-- Si está logueado -->
-                        <h2>📤 Déjanos tu CV</h2>
-                        <p style="color:#666; margin-bottom:25px;">
-                            Aunque no hayas encontrado una oferta específica, queremos conocerte. 
-                            Completa tus datos y te contactaremos cuando surja una oportunidad que se ajuste a tu perfil.
-                        </p>
-                        
-                        <form id="formEnviarBolsaCV" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="action" value="olc_enviar_cv_bolsa">
-                            <?php wp_nonce_field('olc_bolsa_cv', 'bolsa_nonce'); ?>
-                            
-                            <!-- Reutilizar los mismos campos del formulario existente -->
-                            <div class="olc-form-row">
-                                <div class="olc-form-col">
-                                    <label>Nombre completo *</label>
-                                    <input type="text" name="nombre" value="<?php echo esc_attr($datos_postulante->nombre ?? ''); ?>" required>
-                                </div>
-                                <div class="olc-form-col">
-                                    <label>DNI *</label>
-                                    <input type="text" name="dni" value="<?php echo esc_attr($datos_postulante->dni ?? ''); ?>" required>
-                                </div>
-                            </div>
-            
-                            <div class="olc-form-row">
-                                <div class="olc-form-col">
-                                    <label>Teléfono *</label>
-                                    <input type="text" name="telefono" value="<?php echo esc_attr($datos_postulante->telefono ?? ''); ?>" required>
-                                </div>
-                                <div class="olc-form-col">
-                                    <label>Email *</label>
-                                    <input type="email" name="email" value="<?php echo esc_attr($datos_postulante->email ?? ''); ?>" required>
-                                </div>
-                            </div>
-            
-                            <div class="olc-form-row">
-                                <div class="olc-form-col">
-                                    <label>Fecha de nacimiento</label>
-                                    <input type="date" name="fecha_nacimiento" value="<?php echo esc_attr($datos_postulante->fecha_nacimiento ?? ''); ?>">
-                                </div>
-                                <div class="olc-form-col">
-                                    <label>Ciudad *</label>
-                                    <input type="text" name="ciudad" value="<?php echo esc_attr($datos_postulante->ciudad ?? ''); ?>" required>
-                                </div>
-                            </div>
-            
-                            <div style="margin-bottom:15px;">
-                                <label>Profesión *</label>
-                                <select name="profesion" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-                                    <option value="">-- Selecciona tu profesión --</option>
-                                    
-                                    <optgroup label="Profesiones disponibles">
-                                        <option value="Administración de Empresas" <?php selected($datos_postulante->profesion ?? '', 'Administración de Empresas');?>>Administración de Empresas</option>
-                                        <option value="Contabilidad y Finanzas" <?php selected($datos_postulante->profesion ?? '', 'Contabilidad y Finanzas');?>>Contabilidad y Finanzas</option>
-                                        <option value="Economía" <?php selected($datos_postulante->profesion ?? '', 'Economía');?>>Economía</option>
-                                        <option value="Administración Bancaria" <?php selected($datos_postulante->profesion ?? '', 'Administración Bancaria');?>>Administración Bancaria</option>
-                                        <option value="Banca y Finanzas" <?php selected($datos_postulante->profesion ?? '', 'Banca y Finanzas');?>>Banca y Finanzas</option>
-                                        <option value="Administración de Negocios Bancarios y Financieros" <?php selected($datos_postulante->profesion ?? '', 'Administración de Negocios Bancarios y Financieros');?>>Administración de Negocios Bancarios y Financieros</option>
-                                        <option value="Computación e Informática" <?php selected($datos_postulante->profesion ?? '', 'Computación e Informática');?>>Computación e Informática</option>
-                                        <option value="Informática Administrativa" <?php selected($datos_postulante->profesion ?? '', 'Informática Administrativa');?>>Informática Administrativa</option>
-                                        <option value="Gestor de Recuperaciones y cobranzas" <?php selected($datos_postulante->profesion ?? '', 'Gestor de Recuperaciones y cobranzas');?>>Gestor de Recuperaciones y cobranzas</option>
-                                        <option value="Analista de Créditos" <?php selected($datos_postulante->profesion ?? '', 'Analista de Créditos');?>>Analista de Créditos</option>
-                                        <option value="Cajero Promotor" <?php selected($datos_postulante->profesion ?? '', 'Cajero Promotor');?>>Cajero Promotor</option>
-                                        <option value="Secretariado Ejecutivo" <?php selected($datos_postulante->profesion ?? '', 'Secretariado Ejecutivo');?>>Secretariado Ejecutivo</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="">
-                                        <option value="Negocios Internacionales" <?php selected($datos_postulante->profesion ?? '', 'Negocios Internacionales');?>>Negocios Internacionales</option>
-                                        <option value="Marketing" <?php selected($datos_postulante->profesion ?? '', 'Marketing');?>>Marketing</option>
-                                        <option value="Ingeniería Industrial" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Industrial');?>>Ingeniería Industrial</option>
-                                        <option value="Gestión Comercial" <?php selected($datos_postulante->profesion ?? '', 'Gestión Comercial');?>>Gestión Comercial</option>
-                                        <option value="Ingeniería Empresarial" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Empresarial');?>>Ingeniería Empresarial</option>
-                                        <option value="Ingeniería Comercial" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Comercial');?>>Ingeniería Comercial</option>
-                                        <option value="Turismo y Hotelería" <?php selected($datos_postulante->profesion ?? '', 'Turismo y Hotelería');?>>Turismo y Hotelería</option>
-                                        <option value="Administración Hotelera" <?php selected($datos_postulante->profesion ?? '', 'Administración Hotelera');?>>Administración Hotelera</option>
-                                    </optgroup>
-                                    
-                                    <optgroup label="">
-                                        <option value="Medicina" <?php selected($datos_postulante->profesion ?? '', 'Medicina');?>>Medicina</option>
-                                        <option value="Enfermería" <?php selected($datos_postulante->profesion ?? '', 'Enfermería');?>>Enfermería</option>
-                                        <option value="Odontología" <?php selected($datos_postulante->profesion ?? '', 'Odontología');?>>Odontología</option>
-                                        <option value="Arquitectura" <?php selected($datos_postulante->profesion ?? '', 'Arquitectura');?>>Arquitectura</option>
-                                        <option value="Ingeniería Civil" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Civil');?>>Ingeniería Civil</option>
-                                        <option value="Psicología" <?php selected($datos_postulante->profesion ?? '', 'Psicología');?>>Psicología</option>
-                                        <option value="Mecánica" <?php selected($datos_postulante->profesion ?? '', 'Mecánica');?>>Mecánica</option>
-                                        <option value="Eléctrica" <?php selected($datos_postulante->profesion ?? '', 'Eléctrica');?>>Eléctrica</option>
-                                        <option value="Veterinaria" <?php selected($datos_postulante->profesion ?? '', 'Veterinaria');?>>Veterinaria</option>
-                                        <option value="Gastronomía" <?php selected($datos_postulante->profesion ?? '', 'Gastronomía');?>>Gastronomía</option>
-                                        <option value="Diseño Gráfico" <?php selected($datos_postulante->profesion ?? '', 'Diseño Gráfico');?>>Diseño Gráfico</option>
-                                        <option value="Arte / Música / Danza" <?php selected($datos_postulante->profesion ?? '', 'Arte / Música / Danza');?>>Arte / Música / Danza</option>
-                                        <option value="Derecho" <?php selected($datos_postulante->profesion ?? '', 'Derecho');?>>Derecho</option>
-                                        <option value="Trabajo Social" <?php selected($datos_postulante->profesion ?? '', 'Trabajo Social');?>>Trabajo Social</option>
-                                        <option value="Estadística" <?php selected($datos_postulante->profesion ?? '', 'Estadística');?>>Estadística</option>
-                                        <option value="Educación" <?php selected($datos_postulante->profesion ?? '', 'Educación');?>>Educación</option>
-                                        <option value="Comunicaciones" <?php selected($datos_postulante->profesion ?? '', 'Comunicaciones');?>>Comunicaciones</option>
-                                        <option value="Gestión Pública" <?php selected($datos_postulante->profesion ?? '', 'Gestión Pública');?>>Gestión Pública</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-            
-                            <div class="olc-form-row">
-                                <div class="olc-form-col">
-                                    <label>Experiencia *</label>
-                                    <select name="experiencia_anios" required>
-                                        <option value="0" <?php selected($datos_postulante->experiencia_anios ?? '', '0'); ?>>Sin experiencia</option>
-                                        <option value="1" <?php selected($datos_postulante->experiencia_anios ?? '', '1'); ?>>Menos de 1 año</option>
-                                        <option value="2" <?php selected($datos_postulante->experiencia_anios ?? '', '2'); ?>>Entre 1 y 2 años</option>
-                                        <option value="3" <?php selected($datos_postulante->experiencia_anios ?? '', '3'); ?>>De 2 a más años</option>
-                                    </select>
-                                </div>
-                                <div class="olc-form-col">
-                                    <label>¿Maneja moto? *</label>
-                                    <select name="sabe_moto" required>
-                                        <option value="">-- Selecciona --</option>
-                                        <option value="tiene_licencia" <?php selected($datos_postulante->sabe_moto ?? '', 'tiene_licencia'); ?>>Sí, tengo licencia</option>
-                                        <option value="disponibilidad" <?php selected($datos_postulante->sabe_moto ?? '', 'disponibilidad'); ?>>Disponible para sacar</option>
-                                        <option value="no_sabe" <?php selected($datos_postulante->sabe_moto ?? '', 'no_sabe'); ?>>No</option>
-                                    </select>
-                                </div>
-                            </div>
-            
-                            <div style="margin-bottom:15px;">
-                                <label>Currículum Vitae (PDF) *</label>
-                                <input type="file" name="ccvv" accept="application/pdf" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-                                <small style="color:#666;">Archivo PDF, máximo 5MB</small>
-                            </div>
-            
-                            <div style="margin-top:25px; text-align:center;">
-                                <button type="submit" class="olc-btn-primary" style="min-width:200px;">
-                                    📤 Enviar mi CV
-                                </button>
-                                <button type="button" id="btnCancelarBolsa" class="olc-btn-secondary" style="min-width:150px; margin-left:10px;">
-                                    Cancelar
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div id="bolsa-form-response" style="margin-top:15px;"></div>
+                <div class="olc-filtro-item">
+                    <label for="tipo_oferta">Tipo de Oferta:</label>
+                    <select name="tipo_oferta" id="tipo_oferta">
+                        <option value="">Todos los tipos</option>
+                        <?php foreach ($tipos_disponibles as $tipo): ?>
+                            <option value="<?php echo esc_attr($tipo); ?>" <?php selected($filtro_tipo, $tipo); ?>>
+                                <?php echo esc_html($tipo); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="olc-filtro-item">
+                    <label for="sede">Sede/Agencia:</label>
+                    <select name="sede" id="sede">
+                        <option value="">Todas las sedes</option>
+                        <?php foreach ($sedes_disponibles as $sede): ?>
+                            <option value="<?php echo esc_attr($sede); ?>" <?php selected($filtro_sede, $sede); ?>>
+                                <?php echo esc_html($sede); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <!-- ✅ NUEVO: Filtro por Estado -->
+                <div class="olc-filtro-item">
+                    <label for="estado_oferta">Estado:</label>
+                    <select name="estado_oferta" id="estado_oferta">
+                        <option value="">Todos los estados</option>
+                        <option value="activa" <?php selected($filtro_estado, 'activa'); ?>>Activa</option>
+                        <option value="evaluacion" <?php selected($filtro_estado, 'evaluacion'); ?>>En Evaluación</option>
+                        <option value="finalizada" <?php selected($filtro_estado, 'finalizada'); ?>>Finalizada</option>
+                    </select>
+                </div>
+                
+                <div class="olc-filtro-item">
+                    <button type="submit" class="olc-btn-filtrar">🔍 Filtrar</button>
+                    <?php if (!empty($filtro_tipo) || !empty($filtro_sede) || !empty($filtro_estado)): ?>
+                        <a href="<?php echo esc_url(strtok($_SERVER['REQUEST_URI'], '?')); ?>" class="olc-btn-limpiar">
+                            ✖ Limpiar filtros
+                        </a>
                     <?php endif; ?>
                 </div>
+                
+                <!-- ✅ NUEVO: Botón Bolsa de Postulantes -->
+                <div class="olc-filtro-item" style="margin-left: auto;">
+                    <button type="button" id="btnAbrirBolsaCV" class="olc-btn-bolsa-cv">
+                        📤 Déjanos tu CVV
+                    </button>
+                    <span style="display:block; font-size:11px; font-weight:normal; margin-top:3px;text-align: center;">
+                        (Si no encontraste una oferta que se adecúe a ti)
+                    </span>
+                </div>
+            </form>
+        </div>
+        
+        <!-- ========================================
+            ✅ MODAL MOVIDO AQUÍ (ANTES DEL CHECK DE RESULTADOS)
+            MODAL: ENVIAR CV A BOLSA DE POSTULANTES
+            ======================================== -->
+        <?php 
+        $user_id = get_current_user_id();
+        $datos_postulante = null;
+        
+        if ($user_id) {
+            $datos_postulante = $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}olc_postulantes WHERE user_id=%d LIMIT 1", 
+                $user_id
+            ));
+        }
+        ?>
+        
+        <div id="modalBolsaCV" class="olc-modal" style="display:none;">
+            <div class="olc-modal-content olc-modal-grande">
+                <span class="olc-modal-close" id="cerrarModalBolsa">&times;</span>
+                
+                <?php if (!is_user_logged_in()): ?>
+                    <!-- Si no está logueado -->
+                    <h2>🔒 Inicia sesión para continuar</h2>
+                    <p>Para dejar tu CV en nuestra bolsa de postulantes, necesitas tener una cuenta.</p>
+                    <div style="margin-top:20px; text-align:center;">
+                        <a href="<?php echo wp_login_url(get_permalink()); ?>" class="olc-btn-primary">
+                            Iniciar Sesión
+                        </a>
+                        <p style="margin-top:15px;">
+                            ¿No tienes cuenta? 
+                            <a href="<?php echo wp_registration_url(); ?>" style="color:#667eea; font-weight:600;">
+                                Regístrate aquí
+                            </a>
+                        </p>
+                    </div>
+                <?php else: ?>
+                    <!-- Si está logueado -->
+                    <h2>📤 Déjanos tu CV</h2>
+                    <p style="color:#666; margin-bottom:25px;">
+                        Aunque no hayas encontrado una oferta específica, queremos conocerte. 
+                        Completa tus datos y te contactaremos cuando surja una oportunidad que se ajuste a tu perfil.
+                    </p>
+                    
+                    <form id="formEnviarBolsaCV" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="olc_enviar_cv_bolsa">
+                        <?php wp_nonce_field('olc_bolsa_cv', 'bolsa_nonce'); ?>
+                        
+                        <!-- Reutilizar los mismos campos del formulario existente -->
+                        <div class="olc-form-row">
+                            <div class="olc-form-col">
+                                <label>Nombre completo *</label>
+                                <input type="text" name="nombre" value="<?php echo esc_attr($datos_postulante->nombre ?? ''); ?>" required>
+                            </div>
+                            <div class="olc-form-col">
+                                <label>DNI *</label>
+                                <input type="text" name="dni" value="<?php echo esc_attr($datos_postulante->dni ?? ''); ?>" required>
+                            </div>
+                        </div>
+        
+                        <div class="olc-form-row">
+                            <div class="olc-form-col">
+                                <label>Teléfono *</label>
+                                <input type="text" name="telefono" value="<?php echo esc_attr($datos_postulante->telefono ?? ''); ?>" required>
+                            </div>
+                            <div class="olc-form-col">
+                                <label>Email *</label>
+                                <input type="email" name="email" value="<?php echo esc_attr($datos_postulante->email ?? ''); ?>" required>
+                            </div>
+                        </div>
+        
+                        <div class="olc-form-row">
+                            <div class="olc-form-col">
+                                <label>Fecha de nacimiento</label>
+                                <input type="date" name="fecha_nacimiento" value="<?php echo esc_attr($datos_postulante->fecha_nacimiento ?? ''); ?>">
+                            </div>
+                            <div class="olc-form-col">
+                                <label>Ciudad *</label>
+                                <input type="text" name="ciudad" value="<?php echo esc_attr($datos_postulante->ciudad ?? ''); ?>" required>
+                            </div>
+                        </div>
+        
+                        <div style="margin-bottom:15px;">
+                            <label>Profesión *</label>
+                            <select name="profesion" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <option value="">-- Selecciona tu profesión --</option>
+                                
+                                <optgroup label="Profesiones disponibles">
+                                    <option value="Administración de Empresas" <?php selected($datos_postulante->profesion ?? '', 'Administración de Empresas');?>>Administración de Empresas</option>
+                                    <option value="Contabilidad y Finanzas" <?php selected($datos_postulante->profesion ?? '', 'Contabilidad y Finanzas');?>>Contabilidad y Finanzas</option>
+                                    <option value="Economía" <?php selected($datos_postulante->profesion ?? '', 'Economía');?>>Economía</option>
+                                    <option value="Administración Bancaria" <?php selected($datos_postulante->profesion ?? '', 'Administración Bancaria');?>>Administración Bancaria</option>
+                                    <option value="Banca y Finanzas" <?php selected($datos_postulante->profesion ?? '', 'Banca y Finanzas');?>>Banca y Finanzas</option>
+                                    <option value="Administración de Negocios Bancarios y Financieros" <?php selected($datos_postulante->profesion ?? '', 'Administración de Negocios Bancarios y Financieros');?>>Administración de Negocios Bancarios y Financieros</option>
+                                    <option value="Computación e Informática" <?php selected($datos_postulante->profesion ?? '', 'Computación e Informática');?>>Computación e Informática</option>
+                                    <option value="Informática Administrativa" <?php selected($datos_postulante->profesion ?? '', 'Informática Administrativa');?>>Informática Administrativa</option>
+                                    <option value="Gestor de Recuperaciones y cobranzas" <?php selected($datos_postulante->profesion ?? '', 'Gestor de Recuperaciones y cobranzas');?>>Gestor de Recuperaciones y cobranzas</option>
+                                    <option value="Analista de Créditos" <?php selected($datos_postulante->profesion ?? '', 'Analista de Créditos');?>>Analista de Créditos</option>
+                                    <option value="Cajero Promotor" <?php selected($datos_postulante->profesion ?? '', 'Cajero Promotor');?>>Cajero Promotor</option>
+                                    <option value="Secretariado Ejecutivo" <?php selected($datos_postulante->profesion ?? '', 'Secretariado Ejecutivo');?>>Secretariado Ejecutivo</option>
+                                </optgroup>
+                                
+                                <optgroup label="">
+                                    <option value="Negocios Internacionales" <?php selected($datos_postulante->profesion ?? '', 'Negocios Internacionales');?>>Negocios Internacionales</option>
+                                    <option value="Marketing" <?php selected($datos_postulante->profesion ?? '', 'Marketing');?>>Marketing</option>
+                                    <option value="Ingeniería Industrial" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Industrial');?>>Ingeniería Industrial</option>
+                                    <option value="Gestión Comercial" <?php selected($datos_postulante->profesion ?? '', 'Gestión Comercial');?>>Gestión Comercial</option>
+                                    <option value="Ingeniería Empresarial" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Empresarial');?>>Ingeniería Empresarial</option>
+                                    <option value="Ingeniería Comercial" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Comercial');?>>Ingeniería Comercial</option>
+                                    <option value="Turismo y Hotelería" <?php selected($datos_postulante->profesion ?? '', 'Turismo y Hotelería');?>>Turismo y Hotelería</option>
+                                    <option value="Administración Hotelera" <?php selected($datos_postulante->profesion ?? '', 'Administración Hotelera');?>>Administración Hotelera</option>
+                                </optgroup>
+                                
+                                <optgroup label="">
+                                    <option value="Medicina" <?php selected($datos_postulante->profesion ?? '', 'Medicina');?>>Medicina</option>
+                                    <option value="Enfermería" <?php selected($datos_postulante->profesion ?? '', 'Enfermería');?>>Enfermería</option>
+                                    <option value="Odontología" <?php selected($datos_postulante->profesion ?? '', 'Odontología');?>>Odontología</option>
+                                    <option value="Arquitectura" <?php selected($datos_postulante->profesion ?? '', 'Arquitectura');?>>Arquitectura</option>
+                                    <option value="Ingeniería Civil" <?php selected($datos_postulante->profesion ?? '', 'Ingeniería Civil');?>>Ingeniería Civil</option>
+                                    <option value="Psicología" <?php selected($datos_postulante->profesion ?? '', 'Psicología');?>>Psicología</option>
+                                    <option value="Mecánica" <?php selected($datos_postulante->profesion ?? '', 'Mecánica');?>>Mecánica</option>
+                                    <option value="Eléctrica" <?php selected($datos_postulante->profesion ?? '', 'Eléctrica');?>>Eléctrica</option>
+                                    <option value="Veterinaria" <?php selected($datos_postulante->profesion ?? '', 'Veterinaria');?>>Veterinaria</option>
+                                    <option value="Gastronomía" <?php selected($datos_postulante->profesion ?? '', 'Gastronomía');?>>Gastronomía</option>
+                                    <option value="Diseño Gráfico" <?php selected($datos_postulante->profesion ?? '', 'Diseño Gráfico');?>>Diseño Gráfico</option>
+                                    <option value="Arte / Música / Danza" <?php selected($datos_postulante->profesion ?? '', 'Arte / Música / Danza');?>>Arte / Música / Danza</option>
+                                    <option value="Derecho" <?php selected($datos_postulante->profesion ?? '', 'Derecho');?>>Derecho</option>
+                                    <option value="Trabajo Social" <?php selected($datos_postulante->profesion ?? '', 'Trabajo Social');?>>Trabajo Social</option>
+                                    <option value="Estadística" <?php selected($datos_postulante->profesion ?? '', 'Estadística');?>>Estadística</option>
+                                    <option value="Educación" <?php selected($datos_postulante->profesion ?? '', 'Educación');?>>Educación</option>
+                                    <option value="Comunicaciones" <?php selected($datos_postulante->profesion ?? '', 'Comunicaciones');?>>Comunicaciones</option>
+                                    <option value="Gestión Pública" <?php selected($datos_postulante->profesion ?? '', 'Gestión Pública');?>>Gestión Pública</option>
+                                </optgroup>
+                            </select>
+                        </div>
+        
+                        <div class="olc-form-row">
+                            <div class="olc-form-col">
+                                <label>Experiencia *</label>
+                                <select name="experiencia_anios" required>
+                                    <option value="0" <?php selected($datos_postulante->experiencia_anios ?? '', '0'); ?>>Sin experiencia</option>
+                                    <option value="1" <?php selected($datos_postulante->experiencia_anios ?? '', '1'); ?>>Menos de 1 año</option>
+                                    <option value="2" <?php selected($datos_postulante->experiencia_anios ?? '', '2'); ?>>Entre 1 y 2 años</option>
+                                    <option value="3" <?php selected($datos_postulante->experiencia_anios ?? '', '3'); ?>>De 2 a más años</option>
+                                </select>
+                            </div>
+                            <div class="olc-form-col">
+                                <label>¿Maneja moto? *</label>
+                                <select name="sabe_moto" required>
+                                    <option value="">-- Selecciona --</option>
+                                    <option value="tiene_licencia" <?php selected($datos_postulante->sabe_moto ?? '', 'tiene_licencia'); ?>>Sí, tengo licencia</option>
+                                    <option value="disponibilidad" <?php selected($datos_postulante->sabe_moto ?? '', 'disponibilidad'); ?>>Disponible para sacar</option>
+                                    <option value="no_sabe" <?php selected($datos_postulante->sabe_moto ?? '', 'no_sabe'); ?>>No</option>
+                                </select>
+                            </div>
+                        </div>
+        
+                        <div style="margin-bottom:15px;">
+                            <label>Currículum Vitae (PDF) *</label>
+                            <input type="file" name="ccvv" accept="application/pdf" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            <small style="color:#666;">Archivo PDF, máximo 5MB</small>
+                        </div>
+        
+                        <div style="margin-top:25px; text-align:center;">
+                            <button type="submit" class="olc-btn-primary" style="min-width:200px;">
+                                📤 Enviar mi CV
+                            </button>
+                            <button type="button" id="btnCancelarBolsa" class="olc-btn-secondary" style="min-width:150px; margin-left:10px;">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="bolsa-form-response" style="margin-top:15px;"></div>
+                <?php endif; ?>
             </div>
+        </div>
+        
+        <script>
+        jQuery(document).ready(function($){
+            // Abrir modal
+            $('#btnAbrirBolsaCV').on('click', function(){
+                console.log('Botón clickeado - Abriendo modal'); // Debug
+                $('#modalBolsaCV').fadeIn();
+            });
             
-            <script>
-            jQuery(document).ready(function($){
-                // Abrir modal
-                $('#btnAbrirBolsaCV').on('click', function(){
-                    $('#modalBolsaCV').fadeIn();
-                });
+            // Cerrar modal
+            $('#cerrarModalBolsa, #btnCancelarBolsa').on('click', function(){
+                console.log('Cerrando modal'); // Debug
+                $('#modalBolsaCV').fadeOut();
+            });
+            
+            // Submit formulario
+            $('#formEnviarBolsaCV').on('submit', function(e){
+                e.preventDefault();
                 
-                // Cerrar modal
-                $('#cerrarModalBolsa, #btnCancelarBolsa').on('click', function(){
-                    $('#modalBolsaCV').fadeOut();
-                });
+                console.log('Formulario enviado'); // Debug
                 
-                // Submit formulario
-                $('#formEnviarBolsaCV').on('submit', function(e){
-                    e.preventDefault();
-                    
-                    var formData = new FormData(this);
-                    var resp = $('#bolsa-form-response');
-                    
-                    resp.html('<p class="olc-loading">⏳ Enviando CV...</p>');
-                    
-                    $.ajax({
-                        url: olc_ajax.ajax_url,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response){
-                            if (response.success) {
-                                resp.html('<p class="olc-success">✅ ¡CV enviado correctamente! Te contactaremos pronto.</p>');
-                                setTimeout(function(){
-                                    $('#modalBolsaCV').fadeOut();
-                                    $('#formEnviarBolsaCV')[0].reset();
-                                }, 2000);
-                            } else {
-                                resp.html('<p class="olc-error">❌ ' + (response.data?.message || 'Error al enviar') + '</p>');
-                            }
-                        },
-                        error: function(){
-                            resp.html('<p class="olc-error">❌ Error de conexión</p>');
+                var formData = new FormData(this);
+                var resp = $('#bolsa-form-response');
+                
+                resp.html('<p class="olc-loading">⏳ Enviando CV...</p>');
+                
+                $.ajax({
+                    url: olc_ajax.ajax_url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response){
+                        console.log('Respuesta del servidor:', response); // Debug
+                        if (response.success) {
+                            resp.html('<p class="olc-success">✅ ¡CV enviado correctamente! Te contactaremos pronto.</p>');
+                            setTimeout(function(){
+                                $('#modalBolsaCV').fadeOut();
+                                $('#formEnviarBolsaCV')[0].reset();
+                            }, 2000);
+                        } else {
+                            resp.html('<p class="olc-error">❌ ' + (response.data?.message || 'Error al enviar') + '</p>');
                         }
-                    });
+                    },
+                    error: function(xhr, status, error){
+                        console.error('Error AJAX:', status, error); // Debug
+                        resp.html('<p class="olc-error">❌ Error de conexión</p>');
+                    }
                 });
             });
-            </script>
-            
-            <?php
+        });
+        </script>
         
+        <?php
+        // ========================================
+        // AHORA SÍ VERIFICAR RESULTADOS
+        // ========================================
+        if (empty($rows)) {
+            echo '<p class="olc-sin-resultados">No hay ofertas laborales disponibles con los filtros seleccionados.</p>';
             return ob_get_clean();
         }
+        
+        echo '<div class="olc-resultados-info">';
+        echo '<p>Mostrando <strong>' . count($rows) . '</strong> oferta(s)</p>';
+        echo '</div>';
+        
+        echo '<div class="olc-grid-container">';
+        foreach ($rows as $r) {
+            $detail_page = get_page_by_title('Detalle Oferta');
+            $url_detalle = $detail_page ? add_query_arg(array('oferta_id' => $r->id), get_permalink($detail_page)) : '#';
+
+            // ========================================
+            // DETERMINAR ESTADO DINÁMICO DE LA OFERTA
+            // ========================================
+            $hoy = new DateTime();
+            $estado_texto = 'Publicada';
+            $estado_class = 'olc-status-otro';
+            $oferta_vencida = false;
+            
+            // 1. Verificar si ya tiene un ganador (Finalizada)
+            if (!empty($r->ganador_id)) {
+                $estado_texto = 'Finalizada';
+                $estado_class = 'olc-status-finalizada';
+                $oferta_vencida = true;
+            } else {
+                // 2. Verificar fecha_fin
+                if (!empty($r->fecha_fin)) {
+                    $fecha_fin = new DateTime($r->fecha_fin);
+                    
+                    if ($fecha_fin < $hoy) {
+                        // Ya pasó la fecha → En evaluación
+                        $estado_texto = 'En evaluación';
+                        $estado_class = 'olc-status-evaluacion';
+                        $oferta_vencida = true;
+                    } else {
+                        // Dentro de fecha → Activa
+                        $estado_texto = 'Activa';
+                        $estado_class = 'olc-status-activa';
+                        $oferta_vencida = false;
+                    }
+                } else {
+                    // Sin fecha definida, considerar activa si está publicada
+                    if ($r->estado === 'publicada') {
+                        $estado_texto = 'Activa';
+                        $estado_class = 'olc-status-activa';
+                        $oferta_vencida = false;
+                    } else {
+                        $estado_texto = ucfirst($r->estado);
+                        $estado_class = 'olc-status-otro';
+                    }
+                }
+            }
+            
+            // ✅ APLICAR FILTRO POR ESTADO (si está activo)
+            if (!empty($filtro_estado)) {
+                $mostrar = false;
+                
+                if ($filtro_estado === 'activa' && $estado_texto === 'Activa') {
+                    $mostrar = true;
+                } elseif ($filtro_estado === 'evaluacion' && $estado_texto === 'En evaluación') {
+                    $mostrar = true;
+                } elseif ($filtro_estado === 'finalizada' && $estado_texto === 'Finalizada') {
+                    $mostrar = true;
+                }
+                
+                // Si no coincide con el filtro, saltar esta oferta
+                if (!$mostrar) {
+                    continue;
+                }
+            }
+            
+            // Calcular días restantes
+            $dias_restantes = '';
+            if (!empty($r->fecha_fin) && !$oferta_vencida) {
+                $vence = new DateTime($r->fecha_fin);
+                $diff = $hoy->diff($vence)->days;
+                $dias_restantes = "⏳ {$diff} días restantes";
+            } elseif ($oferta_vencida) {
+                $dias_restantes = "❌ Oferta cerrada";
+            }
+            
+            $estado_label = '<span class="olc-status-badge ' . $estado_class . '">' . esc_html($estado_texto) . '</span>';
+
+            echo '<div class="olc-card">';
+            echo $estado_label;
+            echo '<div class="olc-card-body">';
+            echo '<h3>' . esc_html($r->titulo) . '</h3>';
+            echo '<p class="olc-descripcion">' . wp_trim_words(strip_tags($r->descripcion), 25, '...') . '</p>';
+            echo '<p class="olc-info"><strong>📍 ' . esc_html($r->ciudad) . '</strong></p>';
+            echo '<p class="olc-sueldo">💰 ' . esc_html($r->sueldo ?: 'A convenir') . '</p>';
+            if ($dias_restantes) echo '<p class="olc-tiempo">' . esc_html($dias_restantes) . '</p>';
+            echo '</div>';
+            echo '<div class="olc-card-footer">';
+            echo '<a href="' . esc_url($url_detalle) . '" class="olc-btn-detalle">Ver detalles</a>';
+            
+            // ✅ Botón "Postular" solo si NO está vencida
+            if (!$oferta_vencida) {
+                echo '<a href="' . esc_url($url_detalle) . '" class="olc-btn-postular">Postular</a>';
+            } else {
+                echo '<button class="olc-btn-postular-disabled" disabled>Cerrada</button>';
+            }
+            
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+
+        return ob_get_clean();
+    }
 
     /* -----------------------------
        Shortcode: detalle de oferta + modal postulante
